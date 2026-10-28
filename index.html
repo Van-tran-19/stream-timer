@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Stream Timer</title>
+    <style>
+        /* Transparence absolue pour OBS */
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: transparent !important;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* Style de la boîte du timer */
+        .timer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: #ffffff;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+        }
+
+        #mode-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+
+        #timer {
+            font-size: 6rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums; /* Empêche les chiffres de bouger en largeur */
+            letter-spacing: -2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="timer-container">
+        <div id="mode-text">Travail</div>
+        <div id="timer">50:00</div>
+    </div>
+
+    <script>
+        // Configuration du Pomodoro (en secondes)
+        const WORK_TIME = 50 * 60; // 50 minutes
+        const BREAK_TIME = 10 * 60; // 10 minutes
+        
+        let timeLeft = WORK_TIME;
+        let isWorkSession = true;
+
+        const timerDisplay = document.getElementById('timer');
+        const modeDisplay = document.getElementById('mode-text');
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft > 0) {
+                timeLeft--;
+            } else {
+                // Inverser entre Travail et Pause
+                isWorkSession = !isWorkSession;
+                timeLeft = isWorkSession ? WORK_TIME : BREAK_TIME;
+                modeDisplay.textContent = isWorkSession ? "Travail" : "Pause";
+            }
+        }
+
+        // Lancer le timer (actualisé toutes les secondes)
+        setInterval(updateTimer, 1000);
+    </script>
+
+</body>
+</html>
