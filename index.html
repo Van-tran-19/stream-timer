@@ -36,7 +36,7 @@
         #timer {
             font-size: 6rem;
             font-weight: 700;
-            font-variant-numeric: tabular-nums; /* Empêche les chiffres de bouger en largeur */
+            font-variant-numeric: tabular-nums;
             letter-spacing: -2px;
         }
     </style>
@@ -44,39 +44,77 @@
 <body>
 
     <div class="timer-container">
-        <div id="mode-text">Travail</div>
+        <div id="mode-text">Study</div>
         <div id="timer">50:00</div>
     </div>
 
     <script>
-        // Configuration du Pomodoro (en secondes)
-        const WORK_TIME = 50 * 60; // 50 minutes
-        const BREAK_TIME = 10 * 60; // 10 minutes
+        // ==========================================
+        // PERSONNALISE TES TEMPS ICI (en minutes)
+        // ==========================================
+        const STUDY_MINUTES = 50; 
+        const BREAK_MINUTES = 10; 
+        // ==========================================
+
+        const WORK_TIME = STUDY_MINUTES * 60;
+        const BREAK_TIME = BREAK_MINUTES * 60;
         
         let timeLeft = WORK_TIME;
-        let isWorkSession = true;
+        let isStudySession = true;
+        let isPaused = false;
 
         const timerDisplay = document.getElementById('timer');
         const modeDisplay = document.getElementById('mode-text');
 
-        function updateTimer() {
+        function updateDisplay() {
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
-            
             timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
+        }
+
+        function countTimer() {
+            if (isPaused) return;
+
             if (timeLeft > 0) {
                 timeLeft--;
             } else {
-                // Inverser entre Travail et Pause
-                isWorkSession = !isWorkSession;
-                timeLeft = isWorkSession ? WORK_TIME : BREAK_TIME;
-                modeDisplay.textContent = isWorkSession ? "Travail" : "Pause";
+                // Basculement automatique Study <-> Break à la fin du décompte
+                isStudySession = !isStudySession;
+                timeLeft = isStudySession ? WORK_TIME : BREAK_TIME;
+                modeDisplay.textContent = isStudySession ? "Study" : "Break";
             }
+            updateDisplay();
         }
 
-        // Lancer le timer (actualisé toutes les secondes)
-        setInterval(updateTimer, 1000);
+        // Lancer le timer toutes les secondes
+        setInterval(countTimer, 1000);
+        updateDisplay();
+
+        // Contrôle au clavier pour piloter le timer à distance
+        document.addEventListener('keydown', (event) => {
+            const key = event.key.toLowerCase();
+
+            if (key === ' ') { // Touche ESPACE = Pause / Reprise
+                event.preventDefault();
+                isPaused = !isPaused;
+            } else if (key === 's') { // Touche S = Force le mode Study
+                isStudySession = true;
+                timeLeft = WORK_TIME;
+                modeDisplay.textContent = "Study";
+                isPaused = false;
+                updateDisplay();
+            } else if (key === 'b') { // Touche B = Force le mode Break
+                isStudySession = false;
+                timeLeft = BREAK_TIME;
+                modeDisplay.textContent = "Break";
+                isPaused = false;
+                updateDisplay();
+            } else if (key === 'r') { // Touche R = Reset le timer actuel
+                timeLeft = isStudySession ? WORK_TIME : BREAK_TIME;
+                isPaused = false;
+                updateDisplay();
+            }
+        });
     </script>
 
 </body>
